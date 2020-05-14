@@ -1,0 +1,52 @@
+plugins {
+    id 'application'
+    id 'com.diffplug.gradle.spotless' version '3.29.0'
+}
+
+ext {
+    gh_user = System.getenv("GITHUB_ACTOR") ?: "empty-user"
+    gh_token = System.getenv("GITHUB_TOKEN") ?: "empty-token"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/stroeer/tapir")
+        credentials {
+            username = gh_user
+            password = gh_token
+        }
+    }
+}
+
+dependencies {
+    implementation platform('software.amazon.awssdk:bom:2.13.15')
+    implementation 'software.amazon.awssdk:dynamodb'
+    implementation 'com.google.inject:guice:4.2.3'
+    implementation 'io.grpc:grpc-protobuf:1.29.0'
+    implementation 'io.grpc:grpc-stub:1.29.0'
+    implementation 'io.grpc:grpc-netty:1.29.0'
+    implementation 'io.projectreactor:reactor-core:3.3.5.RELEASE'
+
+
+    implementation 'de.stroeer:tapir:0.1.2'
+
+    runtimeOnly 'net.logstash.logback:logstash-logback-encoder:6.3'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.2.3'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_14
+    targetCompatibility = JavaVersion.VERSION_14
+}
+
+application {
+    mainClass = 'de.stroeer.paperboy_light.Application'
+}
+
+spotless {
+    java {
+        googleJavaFormat('1.7')
+    }
+}
+check.dependsOn spotlessJavaCheck
